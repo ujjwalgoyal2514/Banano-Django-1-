@@ -10,12 +10,20 @@ def welcome(request):
     return render(request, 'myapp/welcome.html')
 
 
+# views.py
 def signup(request):
     if request.method == 'POST':
         user_form = SignUpForm(request.POST)
         profile_form = UserProfileForm(request.POST, request.FILES)
 
         if user_form.is_valid() and profile_form.is_valid():
+            password = user_form.cleaned_data['password']
+            confirm_password = user_form.cleaned_data['confirm_password']
+
+            if password != confirm_password:
+                messages.error(request, "Passwords do not match. Please enter matching passwords.")
+                return render(request, 'myapp/signup.html', {'user_form': user_form, 'profile_form': profile_form})
+
             user = user_form.save()
             user.set_password(user.password)
             user.save()
@@ -35,6 +43,7 @@ def signup(request):
         profile_form = UserProfileForm()
 
     return render(request, 'myapp/signup.html', {'user_form': user_form, 'profile_form': profile_form})
+
 
 
 
